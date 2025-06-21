@@ -133,6 +133,7 @@ const HomePageStyles = {
     py: 8,
     textAlign: "center",
     color: "#fff",
+    mb: 5,
   },
   howItWorksTitle: {
     fontWeight: "bold",
@@ -181,12 +182,14 @@ const HomePageStyles = {
   },
   getStartedButtonCentered: {
     backgroundColor: "#05F2DB",
+    boxShadow: "0px 0px 20px rgba(5, 242, 219, 0.5)",
     color: "#000",
     fontWeight: "bold",
     borderRadius: "10px",
     textTransform: "none",
-    px: 5,
-    py: 1.5,
+    px: 8,
+    py: 2,
+    mt: 7,
     "&:hover": {
       backgroundColor: "#00e6cc",
     },
@@ -217,7 +220,7 @@ const HomePageStyles = {
     color: "#fff",
     textAlign: "left",
     backdropFilter: "blur(10px)",
-    minHeight: 230,
+    minHeight: 170,
     maxWidth: 430,
     position: "relative",
     border: "3px solid #05F2DB",
@@ -233,7 +236,8 @@ const HomePageStyles = {
     border: "3px solid #05F2DB",
   },
   teamCardContent: {
-    pl: "90px",
+    pl: "80px",
+    mt: 2,
   },
   teamName: {
     fontWeight: "bold",

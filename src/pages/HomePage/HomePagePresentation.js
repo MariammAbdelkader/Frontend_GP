@@ -156,7 +156,7 @@ const HomePage = () => {
           Create your online store step by step.
         </Typography>
 
-        <Grid container spacing={4} justifyContent="center">
+        <Grid container spacing={10} justifyContent="center">
           {[1, 2, 3, 4].map((step, idx) => {
             const content = [
               {
@@ -222,14 +222,6 @@ const HomePage = () => {
         </Grid>
       </Box>
 
-      {/* How It Works Section */}
-      <Box
-        id="howitworks"
-        ref={howItWorksRef}
-        sx={HomePageStyles.howItWorksSection}>
-        {/* ... rest is unchanged */}
-      </Box>
-
       {/* Who We Are */}
       <Box id="whoweare" ref={whoWeAreRef} sx={HomePageStyles.whoWeAreSection}>
         <Typography variant="h4" sx={HomePageStyles.whoWeAreTitle}>
@@ -261,7 +253,18 @@ const HomePage = () => {
                     <Typography variant="body2" sx={HomePageStyles.teamInfo}>
                       {member.info}
                     </Typography>
-                    <Typography variant="body2" sx={HomePageStyles.teamEmail}>
+                    <Typography
+                      variant="body2"
+                      color="gray"
+                      component="a"
+                      href={`https://mail.google.com/mail/?view=cm&to=${member.email}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{
+                        textDecoration: "none",
+                        mt: 2,
+                        "&:hover": { textDecoration: "underline" },
+                      }}>
                       📧 {member.email}
                     </Typography>
                   </Box>
