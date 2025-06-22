@@ -3,7 +3,9 @@ import { useState } from "react";
 const useDashboardContainer = () => {
   const [dashboardSelected, setDashboardSelected] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [logoupdate, setLogoupdate] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCreated, setIsCreated] = useState(false);
+  const [returnedIpAddress, setReturnedIpAddress] = useState("");
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -18,15 +20,33 @@ const useDashboardContainer = () => {
     setFormData({ ...formData, [field]: event.target.value });
   };
 
-  const handleLogoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoupdate(reader.result);
-      };
-      reader.readAsDataURL(file);
+  const testServerConnection = async () => {
+    try {
+      const response = await fetch("http://localhost:4000", {
+        method: "GET",
+        mode: "cors",
+        credentials: "omit",
+      });
+      console.log("Server is reachable, status:", response.status);
+      return true;
+    } catch (error) {
+      console.error("Server connection test failed:", error);
+      return false;
     }
+  };
+
+  const handleCreateNewWebsite = () => {
+    setShowForm(true);
+    setIsCreated(false);
+    setReturnedIpAddress("");
+    setFormData({
+      firstName: "",
+      lastName: "",
+      gender: "",
+      address: "",
+      email: "",
+      websiteName: "",
+    });
   };
 
   const handleSubmit = async () => {
@@ -47,21 +67,50 @@ const useDashboardContainer = () => {
 
     const payload = {
       ...formData,
-      logo: logoupdate || null,
     };
 
+    console.log("Sending payload:", payload);
+    console.log("Attempting to connect to: http://localhost:4000/website");
+    setIsLoading(true);
+    setIsCreated(false);
+    setReturnedIpAddress("");
+
     try {
-      const response = await fetch("/api/create-website", {
+      // First, let's test if the server is reachable
+      console.log("Testing server connectivity...");
+      const serverReachable = await testServerConnection();
+      
+      if (!serverReachable) {
+        throw new Error("Backend server is not reachable. Please ensure the server is running on http://localhost:4000");
+      }
+      
+      const response = await fetch("http://localhost:4000/website", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json",
         },
         body: JSON.stringify(payload),
+        mode: "cors",
+        credentials: "omit",
       });
 
-      if (!response.ok) throw new Error("Failed to create website");
+      console.log("Response received:", response);
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
 
-      alert("Website created successfully!");
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error("Server error:", errorData);
+        throw new Error(`Failed to create website: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Success response:", data);
+      const ipAddress = data.instance_ip || 'N/A';
+      setReturnedIpAddress(ipAddress);
+      setIsCreated(true);
+      alert(`Website created successfully! IP Address: ${ipAddress}`);
       setShowForm(false);
       setFormData({
         firstName: "",
@@ -71,10 +120,18 @@ const useDashboardContainer = () => {
         email: "",
         websiteName: "",
       });
-      setLogoupdate(null);
     } catch (error) {
-      console.error(error);
-      alert("There was an error submitting the form.");
+      console.error("Network error details:", error);
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        alert("Network error: Please check if the backend server is running on http://localhost:4000");
+      } else {
+        alert(`There was an error submitting the form: ${error.message}`);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -83,11 +140,13 @@ const useDashboardContainer = () => {
     setDashboardSelected,
     showForm,
     setShowForm,
-    logoupdate,
-    handleLogoUpload,
     formData,
     handleChange,
     handleSubmit,
+    isLoading,
+    isCreated,
+    returnedIpAddress,
+    handleCreateNewWebsite,
   };
 };
 

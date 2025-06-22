@@ -11,8 +11,8 @@ import {
   FormControl,
   Paper,
   GlobalStyles,
+  CircularProgress,
 } from "@mui/material";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import logo from "../../images/logo2.png";
 import dashboardStyles from "./DashboardStyles";
 import useDashboardContainer from "./DashboardContainer";
@@ -23,11 +23,13 @@ const DashboardPage = () => {
     setDashboardSelected,
     showForm,
     setShowForm,
-    logoupdate,
-    handleLogoUpload,
     formData,
     handleChange,
     handleSubmit,
+    isLoading,
+    isCreated,
+    returnedIpAddress,
+    handleCreateNewWebsite,
   } = useDashboardContainer();
 
   const navigate = useNavigate();
@@ -69,12 +71,37 @@ const DashboardPage = () => {
           {dashboardSelected && (
             <Box sx={dashboardStyles.mainContent.container}>
               {!showForm && (
-                <Button
-                  sx={dashboardStyles.mainContent.createButton}
-                  variant="contained"
-                  onClick={() => setShowForm(true)}>
-                  Create your own website
-                </Button>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Button
+                    sx={dashboardStyles.mainContent.createButton}
+                    variant="contained"
+                    onClick={handleCreateNewWebsite}>
+                    Create your own website
+                  </Button>
+                  
+                  {isCreated && returnedIpAddress && (
+                    <Box sx={{ mt: 3, p: 3, bgcolor: 'success.light', borderRadius: 2, maxWidth: 400, mx: 'auto' }}>
+                      <Typography variant="h5" color="white" fontWeight="bold" gutterBottom>
+                        Website Created Successfully! 🎉
+                      </Typography>
+                      <Typography variant="h6" color="white" sx={{ mb: 2 }}>
+                        IP Address: {returnedIpAddress}
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        sx={{
+                          bgcolor: 'white',
+                          color: 'success.main',
+                          '&:hover': {
+                            bgcolor: 'grey.100',
+                          },
+                        }}
+                        onClick={handleCreateNewWebsite}>
+                        Create Another Website
+                      </Button>
+                    </Box>
+                  )}
+                </Box>
               )}
 
               {showForm && (
@@ -130,42 +157,30 @@ const DashboardPage = () => {
                       value={formData.websiteName}
                       onChange={handleChange("websiteName")}
                     />
-                    <Box
-                      sx={dashboardStyles.uploadBox}
-                      onClick={() =>
-                        document.getElementById("logo-upload").click()
-                      }>
-                      {logoupdate ? (
-                        <img
-                          src={logoupdate}
-                          alt="Uploaded Logo"
-                          style={{
-                            maxHeight: "100%",
-                            maxWidth: "100%",
-                            objectFit: "contain",
-                          }}
-                        />
-                      ) : (
-                        <Box sx={{ textAlign: "center" }}>
-                          <CloudUploadIcon sx={dashboardStyles.uploadIcon} />
-                          <Typography sx={{ opacity: 0.5 }}>
-                            Upload Logo Here
-                          </Typography>
-                        </Box>
-                      )}
-                      <input
-                        id="logo-upload"
-                        type="file"
-                        accept="image/*"
-                        style={{ display: "none" }}
-                        onChange={handleLogoUpload}
-                      />
-                    </Box>
+                    
                     <Button
-                      sx={dashboardStyles.submitButton}
+                      sx={{
+                        ...dashboardStyles.submitButton,
+                        ...(isCreated && {
+                          bgcolor: 'success.main',
+                          '&:hover': {
+                            bgcolor: 'success.dark',
+                          },
+                        }),
+                      }}
                       variant="contained"
-                      onClick={handleSubmit}>
-                      Create
+                      onClick={handleSubmit}
+                      disabled={isLoading || isCreated}>
+                      {isLoading ? (
+                        <>
+                          <CircularProgress size={20} sx={{ color: 'white', mr: 1 }} />
+                          Creating...
+                        </>
+                      ) : isCreated ? (
+                        'Created ✓'
+                      ) : (
+                        'Create'
+                      )}
                     </Button>
                   </Box>
                 </Paper>
